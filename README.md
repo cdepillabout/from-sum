@@ -7,7 +7,7 @@ Control.FromSum
 This Haskell module exports the `fromEitherM` and `fromMaybeM` convenience
 functions.
 
-```
+```haskell
 fromMaybeM :: m a -> Maybe a -> m a
 
 fromEitherM :: (e -> m a) -> Either e a -> m a
