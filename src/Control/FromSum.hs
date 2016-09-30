@@ -58,7 +58,7 @@ fromMaybeM nothingAction = maybe nothingAction pure
 -- >>> fromEitherMM (\s -> [length s]) . pure $ Left ("foo" :: String)
 -- [3]
 --
--- *NOTE*: I don't particularly like the name of this function.  If you have a
+-- __NOTE__: I don't particularly like the name of this function.  If you have a
 -- suggestion for a better name, please submit a PR or issue.
 fromEitherMM
   :: Monad m
@@ -71,8 +71,8 @@ fromEitherMM eitherAction mEither = fromEitherM eitherAction =<< mEither
 -- [5]
 -- >>> fromMaybeMM [] $ pure Nothing
 -- []
-
--- *NOTE*: I don't particularly like the name of this function.  If you have a
+--
+-- __NOTE__: I don't particularly like the name of this function.  If you have a
 -- suggestion for a better name, please submit a PR or issue.
 fromMaybeMM
   :: Monad m
