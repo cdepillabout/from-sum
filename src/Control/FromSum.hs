@@ -31,6 +31,10 @@ import Data.Maybe (fromMaybe)
 
 -- | A monadic version of 'fromEither'.
 --
+-- @
+--  'fromEitherM' leftAction === 'either' leftAction 'pure'
+-- @
+--
 -- >>> fromEitherM (\s -> [length s]) $ Right 5
 -- [5]
 -- >>> fromEitherM (\s -> [length s]) $ Left ("foo" :: String)
@@ -41,6 +45,10 @@ fromEitherM
 fromEitherM leftAction = either leftAction pure
 
 -- | A monadic version of 'fromMaybe'.
+--
+-- @
+--  'fromMaybeM' nothingAction === 'maybe' nothingAction 'pure'
+-- @
 --
 -- >>> fromMaybeM [] $ Just 5
 -- [5]
