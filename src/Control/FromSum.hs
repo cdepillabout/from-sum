@@ -27,12 +27,18 @@ module Control.FromSum
   , fromEitherOr
   , fromMaybe
   , fromMaybeOr
+    -- * Collapsing funtions
+  , collapseEither
+  , collapseExceptT
   ) where
+
 #if __GLASGOW_HASKELL__ < 710
 -- We don't need this import for GHC 7.10 as it exports all required functions
 -- from Prelude
 import Control.Applicative
 #endif
+import Control.Monad ((<=<))
+import Control.Monad.Except (ExceptT, runExceptT)
 import Data.Maybe (fromMaybe)
 
 -- | A monadic version of 'fromEither'.
@@ -146,8 +152,7 @@ fromMaybeOrMM = flip fromMaybeMM
 -- >>> fromEither show $ Right "hello"
 -- "hello"
 fromEither :: (e -> a) -> Either e a -> a
-fromEither f (Left e) = f e
-fromEither _ (Right a) = a
+fromEither f = either f id
 
 -- | A 'flip'ed version of 'fromEither'.
 fromEitherOr :: Either e a -> (e -> a) -> a
@@ -156,3 +161,25 @@ fromEitherOr = flip fromEither
 -- | A 'flip'ed version of 'fromMaybe'.
 fromMaybeOr :: Maybe a -> a -> a
 fromMaybeOr = flip fromMaybe
+
+-- | Collapse an @'Either' a a@ to an @a@.  Defined as @'fromEither' 'id'@.
+--
+-- Note: Other libraries export this function as @fromEither@, but our
+-- 'fromEither' function is slightly more general.
+--
+-- >>> collapseEither (Right 3)
+-- 3
+-- >>> collapseEither (Left "hello")
+-- "hello"
+collapseEither :: Either a a -> a
+collapseEither = fromEither id
+
+-- | Similar to 'collapseEither', but for 'ExceptT'.
+--
+-- >>> import Control.Monad.Except (ExceptT(ExceptT))
+-- >>> collapseExceptT (ExceptT $ pure (Right 3))
+-- 3
+-- >>> collapseExceptT (ExceptT $ pure (Left "hello"))
+-- "hello"
+collapseExceptT :: Monad m => ExceptT a m a -> m a
+collapseExceptT = pure . collapseEither <=< runExceptT
