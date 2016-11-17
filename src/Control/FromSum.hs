@@ -15,8 +15,12 @@ module Control.FromSum
   ( -- * Monadic in return value
     fromEitherM
   , fromEitherOrM
+  , fromEitherM_
+  , fromEitherOrM_
   , fromMaybeM
   , fromMaybeOrM
+  , fromMaybeM_
+  , fromMaybeOrM_
     -- * Monadic in both return and sum-type value
   , fromEitherMM
   , fromEitherOrMM
@@ -73,6 +77,38 @@ fromEitherOrM
   => Either e a -> (e -> m a) -> m a
 fromEitherOrM = flip fromEitherM
 
+-- | Similar to 'fromEitherM', but only run the monadic 'leftAction' if the
+-- 'Either' argument is 'Left'.  Otherwise, return 'pure' 'mempty'.
+--
+-- @
+--  'fromEitherM_' leftAction === 'either' leftAction ('const' '$' 'pure' 'mempty')
+-- @
+--
+-- >>> fromEitherM_ (\err -> putStrLn err >> pure "bye") $ Right 5
+-- ""
+-- >>> fromEitherM_ (\err -> putStrLn err >> pure "bye") $ Left "there was an error"
+-- there was an error
+-- "bye"
+--
+-- This can be convenient when you want to run some sort of logging function
+-- whenever an 'Either' is 'Left'.  If you imagine the logging function is
+-- @b -> 'IO' '()'@, then the effective type of 'fromEitherM_' becomes
+-- @'fromEitherM_' :: (e -> 'IO' '()') -> 'Either' e a -> 'IO' '()'@, because
+-- '()' has a 'Monoid' instance, and 'IO', has an 'Applicative' instance.
+--
+-- >>> fromEitherM_ putStrLn $ Left "there was an error"
+-- there was an error
+fromEitherM_
+  :: (Applicative m, Monoid b)
+  => (e -> m b) -> Either e a -> m b
+fromEitherM_ leftAction = either leftAction (const $ pure mempty)
+
+-- | A 'flip'ed version of 'fromEitherM_'.
+fromEitherOrM_
+  :: (Applicative m, Monoid b)
+  => Either e a -> (e -> m b) -> m b
+fromEitherOrM_ = flip fromEitherM_
+
 -- | A monadic version of 'fromMaybe'.
 --
 -- @
@@ -104,6 +140,38 @@ fromMaybeOrM
   :: Applicative m
   => Maybe a -> m a -> m a
 fromMaybeOrM = flip fromMaybeM
+
+-- | Similar to 'fromMaybeM', but only run the monadic 'nothingAction' if the
+-- 'Maybe' argument is 'Nothing'.  Otherwise, return 'pure' 'mempty'.
+--
+-- @
+--  'fromMaybeM_' nothingAction === 'maybe' nothingAction ('const' '$' 'pure' 'mempty')
+-- @
+--
+-- >>> fromMaybeM_ (putStrLn "hello" >> pure "bye") $ Just 5
+-- ""
+-- >>> fromMaybeM_ (putStrLn "hello" >> pure "bye") Nothing
+-- hello
+-- "bye"
+--
+-- This can be convenient when you want to run some sort of logging function
+-- whenever a 'Maybe' is 'Nothing'.  If you imagine the logging function is
+-- @'IO' '()'@, then the effective type of 'fromMaybeM_' becomes
+-- @'fromMaybeM_' :: 'IO' '()' -> 'Maybe' a -> 'IO' '()'@, because '()' has a
+-- 'Monoid' instance, and 'IO', has an 'Applicative' instance.
+--
+-- >>> fromMaybeM_ (putStrLn "hello") Nothing
+-- hello
+fromMaybeM_
+  :: (Applicative m, Monoid b)
+  => m b -> Maybe a -> m b
+fromMaybeM_ nothingAction = maybe nothingAction (const $ pure mempty)
+
+-- | A 'flip'ed version of 'fromMaybeM'.
+fromMaybeOrM_
+  :: (Applicative m, Monoid b)
+  => Maybe a -> m b -> m b
+fromMaybeOrM_ = flip fromMaybeM_
 
 -- | Similar to 'fromEitherM' but the 'Either' argument is also a monadic value.
 --
