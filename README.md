@@ -6,6 +6,7 @@ Control.FromSum
 [![Hackage](https://img.shields.io/hackage/v/from-sum.svg)](https://hackage.haskell.org/package/from-sum)
 [![Stackage LTS](http://stackage.org/package/from-sum/badge/lts)](http://stackage.org/lts/package/from-sum)
 [![Stackage Nightly](http://stackage.org/package/from-sum/badge/nightly)](http://stackage.org/nightly/package/from-sum)
+![BSD3 license](https://img.shields.io/badge/license-BSD3-blue.svg)
 
 This Haskell module exports the `fromEitherM` and `fromMaybeM` convenience
 functions.
