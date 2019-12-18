@@ -1,23 +1,24 @@
 name:                from-sum
-version:             0.2.1.0
+version:             0.2.2.0
 synopsis:            Canonical fromMaybeM and fromEitherM functions.
-description:         Please see README.md
+description:         Provides many functions for working with 'Maybe' and 'Either'.  Please see @README.md@.
 homepage:            https://github.com/cdepillabout/from-sum
 license:             BSD3
 license-file:        LICENSE
 author:              Dennis Gosnell
 maintainer:          cdep.illabout@gmail.com
-copyright:           2016 Dennis Gosnell
+copyright:           2016-2019 Dennis Gosnell
 category:            Control
 build-type:          Simple
 extra-source-files:  README.md
+                     CHANGELOG.md
 cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
   exposed-modules:     Control.FromSum
   build-depends:       base >= 4.6 && < 5
-                     , mtl
+                     , transformers
   default-language:    Haskell2010
   ghc-options:         -Wall
 
