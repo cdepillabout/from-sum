@@ -31,6 +31,10 @@ module Control.FromSum
   , fromEitherOr
   , fromMaybe
   , fromMaybeOr
+    -- * Converting from 'Maybe' to 'Either'
+  , maybeToEither
+  , maybeToEitherOr
+  , eitherToMaybe
     -- * Collapsing funtions
   , collapseEither
   , collapseExceptT
@@ -42,7 +46,7 @@ module Control.FromSum
 import Control.Applicative
 #endif
 import Control.Monad ((<=<))
-import Control.Monad.Except (ExceptT, runExceptT)
+import Control.Monad.Trans.Except (ExceptT, runExceptT)
 import Data.Maybe (fromMaybe)
 
 -- | A monadic version of 'fromEither'.
@@ -244,10 +248,50 @@ collapseEither = fromEither id
 
 -- | Similar to 'collapseEither', but for 'ExceptT'.
 --
--- >>> import Control.Monad.Except (ExceptT(ExceptT))
+-- >>> import Control.Monad.Trans.Except (ExceptT(ExceptT))
 -- >>> collapseExceptT (ExceptT $ pure (Right 3))
 -- 3
 -- >>> collapseExceptT (ExceptT $ pure (Left "hello"))
 -- "hello"
 collapseExceptT :: Monad m => ExceptT a m a -> m a
 collapseExceptT = pure . collapseEither <=< runExceptT
+
+-- | Convert a 'Maybe' to an 'Either'.
+--
+-- If the 'Maybe' is 'Just', then return the value in 'Right'.
+--
+-- >>> maybeToEither 3 $ Just "hello"
+-- Right "hello"
+--
+-- If the 'Maybe' is 'Nothing', then use the given @e@ as 'Left'.
+--
+-- >>> maybeToEither 3 Nothing
+-- Left 3
+maybeToEither :: e -> Maybe a -> Either e a
+maybeToEither e Nothing = Left e
+maybeToEither _ (Just a) = Right a
+
+-- | A 'flip'ed version of 'maybeToEither'.
+--
+-- >>> maybeToEitherOr (Just "hello") 3
+-- Right "hello"
+--
+-- >>> maybeToEitherOr Nothing 3
+-- Left 3
+maybeToEitherOr :: Maybe a -> e -> Either e a
+maybeToEitherOr = flip maybeToEither
+
+-- | Convert an 'Either' to a 'Maybe'.
+--
+-- A 'Right' value becomes 'Just'.
+--
+-- >>> eitherToMaybe $ Right 3
+-- Just 3
+--
+-- A 'Left' value becomes 'Nothing'.
+--
+-- >>> eitherToMaybe $ Left "bye"
+-- Nothing
+eitherToMaybe :: Either e a -> Maybe a
+eitherToMaybe (Left _) = Nothing
+eitherToMaybe (Right a) = Just a
