@@ -49,6 +49,8 @@ module Control.FromSum
   , fromMaybeOrExceptT
   , fromMaybeMExceptT
   , fromMaybeOrMExceptT
+  , guardExceptT
+  , guardMExceptT
     -- * Example converting to 'ExceptT'
     -- $exampleExceptT
     -- * Doctests
@@ -451,6 +453,31 @@ fromMaybeMExceptT handler action = do
 -- | Just like 'fromMaybeMExceptT' but with the arguments flipped.
 fromMaybeOrMExceptT :: Monad m => m (Maybe a) -> x -> ExceptT x m a
 fromMaybeOrMExceptT = flip fromMaybeMExceptT
+
+-- | Similar to 'guard', but for 'ExceptT'.
+--
+-- If the 'Bool' is 'True', then do nothing.
+--
+-- >>> guardExceptT True "error occurred" :: ExceptT String Identity ()
+-- ExceptT (Identity (Right ()))
+--
+-- If the 'Bool' is 'False', then return the error case:
+--
+-- >>> guardExceptT False "error occurred" :: ExceptT String Identity ()
+-- ExceptT (Identity (Left "error occurred"))
+guardExceptT :: Monad m => Bool -> x -> ExceptT x m ()
+guardExceptT True _ = pure ()
+guardExceptT False handler = throwE handler
+
+-- | Just like 'guardExceptT' (and similar to 'guardM'), except the boolean is
+-- lifted in a 'Monad'.
+--
+-- >>> guardMExceptT (Identity False) "error occurred" :: ExceptT String Identity ()
+-- ExceptT (Identity (Left "error occurred"))
+guardMExceptT :: Monad m => m Bool -> x -> ExceptT x m ()
+guardMExceptT action handler = do
+  res <- lift action
+  guardExceptT res handler
 
 -- $exampleExceptT
 --
