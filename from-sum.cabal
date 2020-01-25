@@ -1,7 +1,7 @@
 name:                from-sum
-version:             0.2.2.0
-synopsis:            Canonical fromMaybeM and fromEitherM functions.
-description:         Provides many functions for working with 'Maybe' and 'Either'.  Please see @README.md@.
+version:             0.2.3.0
+synopsis:            Combinators for working with Maybe and Either
+description:         Provides many functions for working with 'Maybe' and 'Either', including canonical 'fromMaybeM' and 'fromEitherM' functions.  Please see @README.md@.
 homepage:            https://github.com/cdepillabout/from-sum
 license:             BSD3
 license-file:        LICENSE
